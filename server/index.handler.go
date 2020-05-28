@@ -1,0 +1,14 @@
+package server
+
+import (
+	"net/http"
+)
+
+func (s *Server) handleIndex() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		s.respond(w, r, map[string]interface{}{
+			"version": "0.1",
+			"name":    "Wake me up hotel service",
+		}, 200)
+	}
+}
