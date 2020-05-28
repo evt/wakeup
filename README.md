@@ -1,2 +1,2 @@
 # wakeup
-Hotel wakkeup service
+Hotel wake up service
