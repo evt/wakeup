@@ -1,11 +1,16 @@
 package server
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
 	"net/http"
 
+	scheduler "cloud.google.com/go/scheduler/apiv1"
+	schedulerpb "google.golang.org/genproto/googleapis/cloud/scheduler/v1"
+
+	"github.com/davecgh/go-spew/spew"
 	"github.com/evt/wakeup/model"
 	"github.com/google/uuid"
 )
@@ -48,5 +53,30 @@ func (s *Server) WakeUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Create cloud scheduler job
+	ctx := context.Background()
+	schedulerClient, err := scheduler.NewCloudSchedulerClient(ctx)
+	if err != nil {
+		s.error(w, r, err, http.StatusInternalServerError)
+		return
+	}
+	req := &schedulerpb.CreateJobRequest{
+		Parent: "projects/hotel-alarm/locations/europe-west3",
+		Job: &schedulerpb.Job{
+			Target: &schedulerpb.Job_HttpTarget{
+				HttpTarget: &schedulerpb.HttpTarget{
+					Uri:        "https://www.google.com",
+					HttpMethod: schedulerpb.HttpMethod_GET,
+				},
+			},
+			Schedule: "0 9 * * 1",
+		},
+	}
+	resp, err := schedulerClient.CreateJob(ctx, req)
+	if err != nil {
+		s.error(w, r, err, http.StatusInternalServerError)
+		return
+	}
+	spew.Dump(resp)
 	s.respond(w, r, ok, http.StatusOK)
 }
