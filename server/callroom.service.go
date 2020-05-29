@@ -29,6 +29,7 @@ func (s *Server) CallRoom(w http.ResponseWriter, r *http.Request) {
 		s.respond(w, r, map[string]interface{}{
 			"status": "No users to call",
 		}, http.StatusOK)
+		return
 	}
 	// Call users
 	var wg sync.WaitGroup

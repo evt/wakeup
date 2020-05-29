@@ -13,6 +13,7 @@ require (
 	github.com/gorilla/mux v1.7.4
 	github.com/jinzhu/configor v1.2.0
 	github.com/lib/pq v1.5.2
+	github.com/pkg/errors v0.9.1
 	golang.org/x/net v0.0.0-20200520182314-0ba52f642ac2 // indirect
 	golang.org/x/sys v0.0.0-20200523222454-059865788121 // indirect
 	google.golang.org/api v0.25.0 // indirect

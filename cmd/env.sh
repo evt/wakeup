@@ -5,3 +5,4 @@ export PG_ADDR=localhost:5432
 export PG_DB=wakeup
 export PG_USER=postgres
 export PG_PASSWORD=postgres
+export CALL_ROOM_ENDPOINT=https://europe-west1-wakeup-278613.cloudfunctions.net/CallRoom

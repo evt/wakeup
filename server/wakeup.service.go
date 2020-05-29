@@ -1,12 +1,14 @@
 package server
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/evt/wakeup/model"
+	"github.com/evt/wakeup/scheduler"
 	"github.com/google/uuid"
 )
 
@@ -46,6 +48,12 @@ func (s *Server) WakeUp(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		user.UserID = userUUID.String()
+		// Create scheduler job
+		callRoomURL := s.config.CallRoomEndpoint + "?wakeup_time=" + user.WakeUpTime
+		if err := scheduler.CreateJob(context.Background(), user.WakeUpTime, callRoomURL); err != nil {
+			s.error(w, r, err, http.StatusInternalServerError)
+			return
+		}
 	}
 	// Save metadata to Postgres
 	if err := s.db.AddUsers(users); err != nil {
@@ -53,30 +61,5 @@ func (s *Server) WakeUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// // Create cloud scheduler job
-	// ctx := context.Background()
-	// schedulerClient, err := scheduler.NewCloudSchedulerClient(ctx)
-	// if err != nil {
-	// 	s.error(w, r, err, http.StatusInternalServerError)
-	// 	return
-	// }
-	// req := &schedulerpb.CreateJobRequest{
-	// 	Parent: "projects/hotel-alarm/locations/europe-west3",
-	// 	Job: &schedulerpb.Job{
-	// 		Target: &schedulerpb.Job_HttpTarget{
-	// 			HttpTarget: &schedulerpb.HttpTarget{
-	// 				Uri:        "https://www.google.com",
-	// 				HttpMethod: schedulerpb.HttpMethod_GET,
-	// 			},
-	// 		},
-	// 		Schedule: "0 9 * * 1",
-	// 	},
-	// }
-	// resp, err := schedulerClient.CreateJob(ctx, req)
-	// if err != nil {
-	// 	s.error(w, r, err, http.StatusInternalServerError)
-	// 	return
-	// }
-	// spew.Dump(resp)
 	s.respond(w, r, users, http.StatusOK)
 }
