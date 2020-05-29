@@ -12,13 +12,14 @@ import (
 
 // Config is a config :)
 type Config struct {
-	PgURL            string `env:"PG_URL"`
-	PgProto          string `env:"PG_PROTO"`
-	PgAddr           string `env:"PG_ADDR"`
-	PgDb             string `env:"PG_DB"`
-	PgUser           string `env:"PG_USER"`
-	PgPassword       string `env:"PG_PASSWORD"`
-	CallRoomEndpoint string `env:"CALL_ROOM_ENDPOINT"`
+	PgURL             string `env:"PG_URL"`
+	PgProto           string `env:"PG_PROTO"`
+	PgAddr            string `env:"PG_ADDR"`
+	PgDb              string `env:"PG_DB"`
+	PgUser            string `env:"PG_USER"`
+	PgPassword        string `env:"PG_PASSWORD"`
+	CallRoomEndpoint  string `env:"CALL_ROOM_ENDPOINT"`
+	SchedulerLocation string `env:"SCHEDULER_LOCATION"`
 }
 
 var (

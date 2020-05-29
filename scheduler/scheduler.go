@@ -13,7 +13,7 @@ import (
 	schedulerpb "google.golang.org/genproto/googleapis/cloud/scheduler/v1"
 )
 
-func CreateJob(ctx context.Context, wakeUpTime, callURL string) error {
+func CreateJob(ctx context.Context, wakeUpTime, callURL, schedulerLocation string) error {
 	if wakeUpTime == "" {
 		return errors.New("No wake up time provided")
 	}
@@ -42,9 +42,9 @@ func CreateJob(ctx context.Context, wakeUpTime, callURL string) error {
 		return err
 	}
 	// Prepare schedule to call once a day at provided time
-	schedule := fmt.Sprintf("%d %d * * *", wakeUpHour, wakeUpMin)
+	schedule := fmt.Sprintf("%d %d * * *", wakeUpMin, wakeUpHour)
 	req := &schedulerpb.CreateJobRequest{
-		Parent: "projects/wakeup-278613/locations/europe-west1",
+		Parent: schedulerLocation,
 		Job: &schedulerpb.Job{
 			Target: &schedulerpb.Job_HttpTarget{
 				HttpTarget: &schedulerpb.HttpTarget{

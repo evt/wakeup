@@ -50,7 +50,7 @@ func (s *Server) WakeUp(w http.ResponseWriter, r *http.Request) {
 		user.UserID = userUUID.String()
 		// Create scheduler job
 		callRoomURL := s.config.CallRoomEndpoint + "?wakeup_time=" + user.WakeUpTime
-		if err := scheduler.CreateJob(context.Background(), user.WakeUpTime, callRoomURL); err != nil {
+		if err := scheduler.CreateJob(context.Background(), user.WakeUpTime, callRoomURL, s.config.SchedulerLocation); err != nil {
 			s.error(w, r, err, http.StatusInternalServerError)
 			return
 		}
