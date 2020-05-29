@@ -27,6 +27,11 @@ func init() {
 	s = server.Init(ctx, cfg, pgDB)
 }
 
+// WakeUp
+func WakeUp(w http.ResponseWriter, r *http.Request) {
+	s.WakeUp(w, r)
+}
+
 // CallRoom
 func CallRoom(w http.ResponseWriter, r *http.Request) {
 	s.CallRoom(w, r)
