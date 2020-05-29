@@ -14,11 +14,13 @@ import (
 	schedulerpb "google.golang.org/genproto/googleapis/cloud/scheduler/v1"
 )
 
+// Client is a google scheduler API client
 type Client struct {
 	ctx context.Context
 	*scheduler.CloudSchedulerClient
 }
 
+// Init creates new scheduler API client instance
 func Init(ctx context.Context) (*Client, error) {
 	client, err := scheduler.NewCloudSchedulerClient(context.Background())
 	if err != nil {
@@ -27,6 +29,17 @@ func Init(ctx context.Context) (*Client, error) {
 	return &Client{ctx, client}, nil
 }
 
+// CreateJob creates new scheduler job to call provided callURL at provided wakeUpTime
+// schedulerLocation is a string in format `projects/PROJECT_ID/locations/LOCATION_ID/jobs/JOB_ID`
+// * `PROJECT_ID` can contain letters ([A-Za-z]), numbers ([0-9]),
+//    hyphens (-), colons (:), or periods (.).
+//    For more information, see https://cloud.google.com/resource-manager/docs/creating-managing-projects#identifying_projects
+// * `LOCATION_ID` is the canonical ID for the job's location.
+//    The list of available locations can be obtained by calling
+//    [ListLocations][google.cloud.location.Locations.ListLocations].
+//    For more information, see https://cloud.google.com/about/locations/.
+// * `JOB_ID` can contain only letters ([A-Za-z]), numbers ([0-9]),
+//    hyphens (-), or underscores (_). The maximum length is 500 characters.
 func (cl *Client) CreateJob(wakeUpTime, callURL, schedulerLocation string) error {
 	if wakeUpTime == "" {
 		return errors.New("No wake up time provided")
