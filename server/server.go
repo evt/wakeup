@@ -7,25 +7,28 @@ import (
 
 	"github.com/evt/wakeup/config"
 	"github.com/evt/wakeup/db"
+	"github.com/evt/wakeup/scheduler"
 	"github.com/gorilla/mux"
 )
 
 // Server is a server
 type Server struct {
-	context context.Context
-	config  *config.Config
-	router  *mux.Router
-	db      *db.PgDB
+	context   context.Context
+	config    *config.Config
+	router    *mux.Router
+	db        *db.PgDB
+	scheduler *scheduler.Client
 }
 
 // Init returns new server instance
-func Init(ctx context.Context, config *config.Config, db *db.PgDB) *Server {
+func Init(ctx context.Context, config *config.Config, db *db.PgDB, scheduler *scheduler.Client) *Server {
 	router := mux.NewRouter()
 	s := &Server{
-		context: ctx,
-		config:  config,
-		router:  router,
-		db:      db,
+		context:   ctx,
+		config:    config,
+		router:    router,
+		db:        db,
+		scheduler: scheduler,
 	}
 	s.routes()
 	return s

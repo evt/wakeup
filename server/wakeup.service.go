@@ -1,14 +1,12 @@
 package server
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/evt/wakeup/model"
-	"github.com/evt/wakeup/scheduler"
 	"github.com/google/uuid"
 )
 
@@ -50,7 +48,7 @@ func (s *Server) WakeUp(w http.ResponseWriter, r *http.Request) {
 		user.UserID = userUUID.String()
 		// Create scheduler job
 		callRoomURL := s.config.CallRoomEndpoint + "?wakeup_time=" + user.WakeUpTime
-		if err := scheduler.CreateJob(context.Background(), user.WakeUpTime, callRoomURL, s.config.SchedulerLocation); err != nil {
+		if err := s.scheduler.CreateJob(user.WakeUpTime, callRoomURL, s.config.SchedulerLocation); err != nil {
 			s.error(w, r, err, http.StatusInternalServerError)
 			return
 		}

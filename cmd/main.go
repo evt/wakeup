@@ -9,6 +9,7 @@ import (
 
 	"github.com/evt/wakeup/config"
 	"github.com/evt/wakeup/db"
+	"github.com/evt/wakeup/scheduler"
 	"github.com/evt/wakeup/server"
 )
 
@@ -30,8 +31,14 @@ func run() error {
 		log.Fatal(err)
 	}
 
+	// create google cloud scheduler client
+	sch, err := scheduler.Init(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// create new server instance
-	s := server.Init(ctx, cfg, pgDB)
+	s := server.Init(ctx, cfg, pgDB, sch)
 
 	// run http server
 	addr := ":8080"
