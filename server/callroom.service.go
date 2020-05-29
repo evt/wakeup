@@ -2,7 +2,10 @@ package server
 
 import (
 	"errors"
+	"log"
 	"net/http"
+
+	"github.com/davecgh/go-spew/spew"
 )
 
 // CallRoom acepts a request from scheduler and calls all users tied to wake up time
@@ -18,6 +21,6 @@ func (s *Server) CallRoom(w http.ResponseWriter, r *http.Request) {
 		s.error(w, r, err, http.StatusInternalServerError)
 		return
 	}
-
+	log.Printf("Users to wake up by time %s:\n%s", wakeUpTime, spew.Sdump(users))
 	s.respond(w, r, users, http.StatusOK)
 }
