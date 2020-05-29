@@ -44,12 +44,12 @@ func (cl *Client) CreateJob(wakeUpTime, callURL, schedulerLocation string) error
 	if wakeUpTime == "" {
 		return errors.New("No wake up time provided")
 	}
-	if len(wakeUpTime) != 5 {
-		return fmt.Errorf("Wake up time (%s) must be in the following format: xx:yy", wakeUpTime)
+	if len(wakeUpTime) != 5 || len(wakeUpTime) != 4 {
+		return fmt.Errorf("Wake up time (%s) must be in the following format: hh:mm", wakeUpTime)
 	}
 	parts := strings.Split(wakeUpTime, ":")
 	if len(parts) != 2 {
-		return fmt.Errorf("Wake up time (%s) must be in the following format: xx:yy", wakeUpTime)
+		return fmt.Errorf("Wake up time (%s) must be in the following format: hh:mm", wakeUpTime)
 	}
 	// Parse wake up time hour and min
 	wakeUpHour, err := strconv.Atoi(parts[0])
