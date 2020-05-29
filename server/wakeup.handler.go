@@ -10,3 +10,10 @@ func (s *Server) handleWakeUp() http.HandlerFunc {
 		s.WakeUp(w, r)
 	}
 }
+
+// handleCallRoom
+func (s *Server) handleCallRoom() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		s.CallRoom(w, r)
+	}
+}

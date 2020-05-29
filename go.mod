@@ -4,7 +4,8 @@ go 1.13
 
 require (
 	cloud.google.com/go v0.57.0
-	github.com/davecgh/go-spew v1.1.0
+	github.com/davecgh/go-spew v1.1.1
+	github.com/go-pg/migrations/v7 v7.1.10
 	github.com/go-pg/pg/v9 v9.1.6
 	github.com/golang/protobuf v1.4.2 // indirect
 	github.com/google/go-cmp v0.4.1 // indirect

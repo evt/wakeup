@@ -45,6 +45,7 @@ func (s *Server) respond(w http.ResponseWriter, r *http.Request, data interface{
 
 // error responds with JSON response
 func (s *Server) error(w http.ResponseWriter, r *http.Request, err error, status int) {
+	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(status)
 	if err != nil {
 		err := json.NewEncoder(w).Encode(e(err))
