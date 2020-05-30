@@ -14,7 +14,7 @@ import (
 func (s *Server) CallRoom(w http.ResponseWriter, r *http.Request) {
 	callTime := r.URL.Query().Get("call_time")
 	if callTime == "" {
-		s.error(w, r, errors.New("No wake up time provided"), http.StatusBadRequest)
+		s.error(w, r, errors.New("No call time provided"), http.StatusBadRequest)
 		return
 	}
 	// Find rooms by wake up time

@@ -41,18 +41,18 @@ func Init(ctx context.Context) (*Client, error) {
 //    hyphens (-), or underscores (_). The maximum length is 500 characters.
 func (cl *Client) CreateJob(callTime, callURL, schedulerLocation string) error {
 	if callTime == "" {
-		return errors.New("No wake up time provided")
+		return errors.New("No call time provided")
 	}
 	parts := strings.Split(callTime, ":")
 	if len(parts) != 2 {
 		return fmt.Errorf("Wake up time (%s) must be in the following format: hh:mm", callTime)
 	}
 	// Parse wake up time hour and min
-	wakeUpHour, err := strconv.Atoi(parts[0])
+	callHour, err := strconv.Atoi(parts[0])
 	if err != nil {
 		return errors.Wrapf(err, "wake up hour (%s) in wake up time (%s) is not a number", parts[0], callTime)
 	}
-	wakeUpMin, err := strconv.Atoi(parts[1])
+	callMin, err := strconv.Atoi(parts[1])
 	if err != nil {
 		return errors.Wrapf(err, "wake up min (%s) in wake up time (%s) is not a number", parts[1], callTime)
 	}
@@ -72,7 +72,7 @@ func (cl *Client) CreateJob(callTime, callURL, schedulerLocation string) error {
 		return nil
 	}
 	// Prepare schedule to call once a day at provided time
-	schedule := fmt.Sprintf("%d %d * * *", wakeUpMin, wakeUpHour)
+	schedule := fmt.Sprintf("%d %d * * *", callMin, callHour)
 	req := &schedulerpb.CreateJobRequest{
 		Parent: schedulerLocation,
 		Job: &schedulerpb.Job{
