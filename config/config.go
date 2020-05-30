@@ -20,7 +20,7 @@ type Config struct {
 	PgPassword        string `env:"WAKEUP_PG_PASSWORD"`
 	CallRoomEndpoint  string `env:"WAKEUP_CALL_ROOM_ENDPOINT"`
 	SchedulerLocation string `env:"WAKEUP_SCHEDULER_LOCATION"`
-	SchedulerTimeZone string `env:"WAKEUP_TIME_ZONE"`
+	SchedulerTimeZone string `env:"WAKEUP_SCHEDULER_TIMEZONE"`
 }
 
 var (
