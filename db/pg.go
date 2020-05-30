@@ -3,9 +3,9 @@ package db
 import (
 	"time"
 
+	"github.com/evt/wakeup/config"
 	"github.com/go-pg/pg/v9"
 	_ "github.com/lib/pq"
-	"github.com/evt/wakeup/config"
 )
 
 // Postgres timeout

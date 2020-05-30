@@ -11,7 +11,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// Server is a server
+// Server is a server with all the batteries included :)
 type Server struct {
 	context   context.Context
 	config    *config.Config
@@ -34,7 +34,7 @@ func Init(ctx context.Context, config *config.Config, db *db.PgDB, scheduler *sc
 	return s
 }
 
-// respond responds with JSON response
+// respond converts data to JSON and sends it to client
 func (s *Server) respond(w http.ResponseWriter, r *http.Request, data interface{}, status int) {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -46,7 +46,7 @@ func (s *Server) respond(w http.ResponseWriter, r *http.Request, data interface{
 	}
 }
 
-// error responds with JSON response
+// error sends { "error": ... } to client
 func (s *Server) error(w http.ResponseWriter, r *http.Request, err error, status int) {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(status)

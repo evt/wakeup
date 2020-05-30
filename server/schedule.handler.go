@@ -4,14 +4,14 @@ import (
 	"net/http"
 )
 
-// handleWakeUp
-func (s *Server) handleWakeUp() http.HandlerFunc {
+// handleCallSchedule handles POST /schedule request
+func (s *Server) handleCallSchedule() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		s.WakeUp(w, r)
+		s.ScheduleCall(w, r)
 	}
 }
 
-// handleCallRoom
+// handleCallRoom handles GET /call request
 func (s *Server) handleCallRoom() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		s.CallRoom(w, r)

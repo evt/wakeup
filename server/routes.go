@@ -1,10 +1,11 @@
 package server
 
+// routes lists routes for our HTTP server
 func (s *Server) routes() {
 	// index page
 	s.router.HandleFunc("/", s.handleIndex())
-	// user wants to wake them up at xx:yy
-	s.router.HandleFunc("/wakeup", s.handleWakeUp()).Methods("POST")
-	// call all users by wake up time (expected to run by google cloud scheduler)
-	s.router.HandleFunc("/callroom", s.handleCallRoom()).Methods("GET")
+	// schedule room calls
+	s.router.HandleFunc("/schedule", s.handleCallSchedule()).Methods("POST")
+	// call rooms
+	s.router.HandleFunc("/call", s.handleCallRoom()).Methods("GET")
 }

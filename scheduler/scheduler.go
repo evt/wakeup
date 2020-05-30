@@ -10,7 +10,6 @@ import (
 	"github.com/pkg/errors"
 
 	scheduler "cloud.google.com/go/scheduler/apiv1"
-	"github.com/davecgh/go-spew/spew"
 	schedulerpb "google.golang.org/genproto/googleapis/cloud/scheduler/v1"
 )
 
@@ -29,7 +28,7 @@ func Init(ctx context.Context) (*Client, error) {
 	return &Client{ctx, client}, nil
 }
 
-// CreateJob creates new scheduler job to call provided callURL at provided wakeUpTime
+// CreateJob creates new scheduler job to call provided callURL at provided callTime
 // schedulerLocation is a string in format `projects/PROJECT_ID/locations/LOCATION_ID/jobs/JOB_ID`
 // * `PROJECT_ID` can contain letters ([A-Za-z]), numbers ([0-9]),
 //    hyphens (-), colons (:), or periods (.).
@@ -40,31 +39,28 @@ func Init(ctx context.Context) (*Client, error) {
 //    For more information, see https://cloud.google.com/about/locations/.
 // * `JOB_ID` can contain only letters ([A-Za-z]), numbers ([0-9]),
 //    hyphens (-), or underscores (_). The maximum length is 500 characters.
-func (cl *Client) CreateJob(wakeUpTime, callURL, schedulerLocation string) error {
-	if wakeUpTime == "" {
+func (cl *Client) CreateJob(callTime, callURL, schedulerLocation string) error {
+	if callTime == "" {
 		return errors.New("No wake up time provided")
 	}
-	if len(wakeUpTime) != 5 || len(wakeUpTime) != 4 {
-		return fmt.Errorf("Wake up time (%s) must be in the following format: hh:mm", wakeUpTime)
-	}
-	parts := strings.Split(wakeUpTime, ":")
+	parts := strings.Split(callTime, ":")
 	if len(parts) != 2 {
-		return fmt.Errorf("Wake up time (%s) must be in the following format: hh:mm", wakeUpTime)
+		return fmt.Errorf("Wake up time (%s) must be in the following format: hh:mm", callTime)
 	}
 	// Parse wake up time hour and min
 	wakeUpHour, err := strconv.Atoi(parts[0])
 	if err != nil {
-		return errors.Wrapf(err, "wake up hour (%s) in wake up time (%s) is not a number", parts[0], wakeUpTime)
+		return errors.Wrapf(err, "wake up hour (%s) in wake up time (%s) is not a number", parts[0], callTime)
 	}
 	wakeUpMin, err := strconv.Atoi(parts[1])
 	if err != nil {
-		return errors.Wrapf(err, "wake up min (%s) in wake up time (%s) is not a number", parts[1], wakeUpTime)
+		return errors.Wrapf(err, "wake up min (%s) in wake up time (%s) is not a number", parts[1], callTime)
 	}
 	if callURL == "" {
 		return errors.New("No call URL provided")
 	}
 	// Prepare scheduler job name
-	jobID := schedulerLocation + "/jobs/wake_up_at_" + wakeUpTime
+	jobID := schedulerLocation + "/jobs/wake_up_at_" + callTime
 	// Make sure scheduler job doesn't exist for provided wake up time
 	existingJob, err := cl.GetJob(jobID)
 	if err != nil {
@@ -72,7 +68,7 @@ func (cl *Client) CreateJob(wakeUpTime, callURL, schedulerLocation string) error
 	}
 	// Job already exists - do nothing
 	if existingJob != nil {
-		log.Printf("Scheduler job already exists for waker up time %s", wakeUpTime)
+		log.Printf("Scheduler job already exists for waker up time %s", callTime)
 		return nil
 	}
 	// Prepare schedule to call once a day at provided time
@@ -94,7 +90,12 @@ func (cl *Client) CreateJob(wakeUpTime, callURL, schedulerLocation string) error
 	if err != nil {
 		return errors.Wrap(err, "CreateJob->cl.CloudSchedulerClient.CreateJob")
 	}
-	spew.Dump(resp)
+	// Make sure job has been created with correct state
+	if resp.State != schedulerpb.Job_ENABLED {
+		return errors.Wrap(fmt.Errorf("Found incorrect job state %d in response. Must be %d", resp.State, schedulerpb.Job_ENABLED), "CreateJob->cl.CloudSchedulerClient.CreateJob")
+	}
+	log.Printf("Created scheduler job for wake up time %s", callTime)
+
 	return nil
 }
 

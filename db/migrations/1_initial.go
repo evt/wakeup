@@ -8,19 +8,19 @@ import (
 
 func init() {
 	migrations.MustRegisterTx(func(db migrations.DB) error {
-		fmt.Println("creating table users...")
-		_, err := db.Exec(`CREATE TABLE users(
-      user_id uuid not null primary key,
+		fmt.Println("creating table rooms...")
+		_, err := db.Exec(`CREATE TABLE rooms(
+      room_id uuid not null primary key,
       firstname varchar(64) not null,
       lastname varchar(64) not null,
-			phone varchar(32) default null,
-			room_number integer not null,
-      wakeup_time char(5) not null
+			room_number integer not null unique,
+      call_time char(5) not null,
+			created timestamp default current_timestamp
     )`)
 		return err
 	}, func(db migrations.DB) error {
-		fmt.Println("dropping table users...")
-		_, err := db.Exec(`DROP TABLE users`)
+		fmt.Println("dropping table rooms...")
+		_, err := db.Exec(`DROP TABLE rooms`)
 		return err
 	})
 }

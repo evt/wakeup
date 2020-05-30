@@ -1,6 +1,6 @@
 package model
 
-// CallRoomRequest is a request coming from google cloud scheduler to call users
+// CallRoomRequest is a request coming from google cloud scheduler to call rooms
 type CallRoomRequest struct {
-	WakeUpTime string `json:"wakeup_time"`
+	callTime string `json:"call_time"`
 }

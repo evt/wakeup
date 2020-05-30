@@ -34,9 +34,9 @@ func init() {
 	s = server.Init(ctx, cfg, pgDB, sch)
 }
 
-// WakeUp
-func WakeUp(w http.ResponseWriter, r *http.Request) {
-	s.WakeUp(w, r)
+// ScheduleCall
+func ScheduleCall(w http.ResponseWriter, r *http.Request) {
+	s.ScheduleCall(w, r)
 }
 
 // CallRoom
