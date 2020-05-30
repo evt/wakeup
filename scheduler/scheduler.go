@@ -39,7 +39,7 @@ func Init(ctx context.Context) (*Client, error) {
 //    For more information, see https://cloud.google.com/about/locations/.
 // * `JOB_ID` can contain only letters ([A-Za-z]), numbers ([0-9]),
 //    hyphens (-), or underscores (_). The maximum length is 500 characters.
-func (cl *Client) CreateJob(callTime, callURL, schedulerLocation string) error {
+func (cl *Client) CreateJob(callTime, callURL, schedulerLocation string, schedulerTimeZone string) error {
 	if callTime == "" {
 		return errors.New("No call time provided")
 	}
@@ -83,6 +83,7 @@ func (cl *Client) CreateJob(callTime, callURL, schedulerLocation string) error {
 					HttpMethod: schedulerpb.HttpMethod_GET,
 				},
 			},
+			TimeZone: schedulerTimeZone,
 			Schedule: schedule,
 		},
 	}
