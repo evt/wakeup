@@ -54,7 +54,7 @@ func (s *Server) ScheduleCall(w http.ResponseWriter, r *http.Request) {
 		room.RoomID = roomUUID.String()
 		// Create scheduler job
 		callRoomURL := s.config.CallRoomEndpoint + "?call_time=" + room.CallTime
-		if err := s.scheduler.CreateJob(room.CallTime, callRoomURL, s.config.SchedulerLocation); err != nil {
+		if err := s.scheduler.CreateJob(room.CallTime, callRoomURL, s.config.SchedulerLocation, s.config.SchedulerTimeZone); err != nil {
 			s.error(w, r, err, http.StatusInternalServerError)
 			return
 		}
