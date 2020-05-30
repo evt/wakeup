@@ -10,3 +10,4 @@ gcloud functions deploy CallRoom \
 --region $WAKEUP_GC_PROJECT_LOCATION \
 --memory 128MB \
 --max-instances 10
+cd cmd
