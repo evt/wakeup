@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/pkg/errors"
@@ -44,16 +45,21 @@ func (s *Server) ScheduleCall(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	// Save metadata to Postgres and schedule cron job
-	if err := s.scheduleCall(rooms); err != nil {
+	// Save metadata to Postgres
+	if err := s.db.AddRooms(rooms); err != nil {
+		s.error(w, r, err, http.StatusInternalServerError)
+		return
+	}
+	// Schedule cron job
+	if err := s.scheduleJob(rooms); err != nil {
 		s.error(w, r, err, http.StatusInternalServerError)
 		return
 	}
 	s.respond(w, r, rooms, http.StatusOK)
 }
 
-// scheduleCall saves room details to Postgres and schedules cron job
-func (s *Server) scheduleCall(rooms []*model.Room) error {
+// scheduleJob adds cron job in cloud scheduler
+func (s *Server) scheduleJob(rooms []*model.Room) error {
 	if len(rooms) == 0 {
 		return errors.New("No rooms provided")
 	}
@@ -69,10 +75,7 @@ func (s *Server) scheduleCall(rooms []*model.Room) error {
 		}); err != nil {
 			return err
 		}
-	}
-	// Save metadata to Postgres
-	if err := s.db.AddRooms(rooms); err != nil {
-		return err
+		log.Printf("[Room %d] Created scheduler job for wake up time %s", room.RoomNumber, room.CallTime)
 	}
 	return nil
 }

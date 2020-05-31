@@ -55,8 +55,10 @@ func (s *Server) CallRoom(w http.ResponseWriter, r *http.Request) {
 					return err
 				}
 				room.CallTime = callTime
-				s.scheduleCall([]*model.Room{room})
+				s.scheduleJob([]*model.Room{room})
 				s.db.IncRoomRetryCount(room)
+			} else {
+				log.Printf("[Room %d] retry count - %d. No more retries scheduled.", room.RoomNumber, room.RetryCount)
 			}
 			// Save call in DB
 			err = s.db.SaveCall(&model.Call{

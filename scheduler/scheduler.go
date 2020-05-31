@@ -3,7 +3,6 @@ package scheduler
 import (
 	"context"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 
@@ -77,7 +76,6 @@ func (cl *Client) CreateJob(args CreateJobArgs) error {
 	}
 	// Job already exists - do nothing
 	if existingJob != nil {
-		log.Printf("[Room %d] Scheduler job already exists for call time %s", args.RoomNumber, args.CallTime)
 		return nil
 	}
 	// Prepare schedule to call once a day at provided time
@@ -104,7 +102,6 @@ func (cl *Client) CreateJob(args CreateJobArgs) error {
 	if resp.State != schedulerpb.Job_ENABLED {
 		return errors.Wrap(fmt.Errorf("Found incorrect job state %d in response. Must be %d", resp.State, schedulerpb.Job_ENABLED), "CreateJob->cl.CloudSchedulerClient.CreateJob")
 	}
-	log.Printf("[Room %d] Created scheduler job for wake up time %s", args.RoomNumber, args.CallTime)
 
 	return nil
 }

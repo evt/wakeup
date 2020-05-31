@@ -28,6 +28,7 @@ func (db *PgDB) FindRooms(callTime string) ([]*model.Room, error) {
 
 // IncRoomRetryCount increases call try count by 1
 func (db *PgDB) IncRoomRetryCount(room *model.Room) error {
-	_, err := db.Model(room).Set("retry_count = retry_count+1").WherePK().Update()
+	room.RetryCount++
+	_, err := db.Model(room).Set("retry_count = ?retry_count").Where("room_number = ?room_number").Update()
 	return err
 }
