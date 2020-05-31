@@ -7,6 +7,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/evt/wakeup/model"
+	"github.com/evt/wakeup/scheduler"
 )
 
 // ScheduleCall accepts a list of rooms to call at certain time, saves them in Postgres and creates scheduler job if not exists yet
@@ -42,18 +43,36 @@ func (s *Server) ScheduleCall(w http.ResponseWriter, r *http.Request) {
 			s.error(w, r, fmt.Errorf("Call time (%s) has incorrect format (must be xx:yy) for room number %d", room.CallTime, room.RoomNumber), http.StatusBadRequest)
 			return
 		}
+	}
+	// Save metadata to Postgres and schedule cron job
+	if err := s.scheduleCall(rooms); err != nil {
+		s.error(w, r, err, http.StatusInternalServerError)
+		return
+	}
+	s.respond(w, r, rooms, http.StatusOK)
+}
+
+// scheduleCall saves room details to Postgres and schedules cron job
+func (s *Server) scheduleCall(rooms []*model.Room) error {
+	if len(rooms) == 0 {
+		return errors.New("No rooms provided")
+	}
+	for _, room := range rooms {
 		// Create scheduler job
 		callRoomURL := s.config.CallRoomEndpoint + "?call_time=" + room.CallTime
-		if err := s.scheduler.CreateJob(room.CallTime, callRoomURL, s.config.SchedulerLocation, s.config.SchedulerTimeZone); err != nil {
-			s.error(w, r, err, http.StatusInternalServerError)
-			return
+		if err := s.scheduler.CreateJob(scheduler.CreateJobArgs{
+			RoomNumber:        room.RoomNumber,
+			CallTime:          room.CallTime,
+			CallURL:           callRoomURL,
+			SchedulerLocation: s.config.SchedulerLocation,
+			SchedulerTimezone: s.config.SchedulerTimeZone,
+		}); err != nil {
+			return err
 		}
 	}
 	// Save metadata to Postgres
 	if err := s.db.AddRooms(rooms); err != nil {
-		s.error(w, r, err, http.StatusInternalServerError)
-		return
+		return err
 	}
-
-	s.respond(w, r, rooms, http.StatusOK)
+	return nil
 }

@@ -14,6 +14,7 @@ func init() {
       firstname varchar(64) not null,
       lastname varchar(64) not null,
       call_time char(5) not null,
+			retry_count integer not null default 0,
 			created timestamp default current_timestamp
     )`)
 		if err != nil {

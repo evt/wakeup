@@ -42,6 +42,22 @@ func (s *Server) CallRoom(w http.ResponseWriter, r *http.Request) {
 				return err
 			}
 			log.Printf("[Room %d] call status - %d", room.RoomNumber, status)
+			// Schedule call retry if needed
+			needsCallRetry, err := s.needsCallRetry(room, status)
+			if err != nil {
+				log.Printf("[Room %d] needsCallRetry error: %s", room.RoomNumber, err)
+				return err
+			}
+			if needsCallRetry {
+				callTime, err := addRetryPeriod(room.CallTime, s.config.SchedulerRetryPeriod)
+				if err != nil {
+					log.Printf("[Room %d] addRetryPeriod error: %s", room.RoomNumber, err)
+					return err
+				}
+				room.CallTime = callTime
+				s.scheduleCall([]*model.Room{room})
+				s.db.IncRoomRetryCount(room)
+			}
 			// Save call in DB
 			err = s.db.SaveCall(&model.Call{
 				RoomNumber: room.RoomNumber,
@@ -77,4 +93,18 @@ func call(endpoint string, room *model.Room) (int, error) {
 	}
 	defer resp.Body.Close()
 	return resp.StatusCode, nil
+}
+
+// needsCallRetry returns true if status is 4xx-5xx
+func (s *Server) needsCallRetry(room *model.Room, status int) (bool, error) {
+	if room == nil {
+		return false, errors.New("No room provided")
+	}
+	if room.RetryCount >= s.config.SchedulerRetryCount {
+		return false, nil
+	}
+	if status >= 400 && status < 600 {
+		return true, nil
+	}
+	return false, nil
 }

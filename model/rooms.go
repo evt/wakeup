@@ -9,5 +9,6 @@ type Room struct {
 	Firstname  string    `json:"firstname" pg:"firstname,notnull"`
 	Lastname   string    `json:"lastname" pg:"lastname,notnull"`
 	CallTime   string    `json:"call_time" pg:"call_time,notnull"`
+	RetryCount int       `json:"retry_count" pg:"retry_count,notnull"`
 	Created    time.Time `json:"created" pg:"created"`
 }

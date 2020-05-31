@@ -28,6 +28,15 @@ func Init(ctx context.Context) (*Client, error) {
 	return &Client{ctx, client}, nil
 }
 
+// CreateJobArgs holds args for CreateJob (see below)
+type CreateJobArgs struct {
+	RoomNumber        int
+	CallTime          string
+	CallURL           string
+	SchedulerLocation string
+	SchedulerTimezone string
+}
+
 // CreateJob creates new scheduler job to call provided callURL at provided callTime
 // schedulerLocation is a string in format `projects/PROJECT_ID/locations/LOCATION_ID/jobs/JOB_ID`
 // * `PROJECT_ID` can contain letters ([A-Za-z]), numbers ([0-9]),
@@ -39,28 +48,28 @@ func Init(ctx context.Context) (*Client, error) {
 //    For more information, see https://cloud.google.com/about/locations/.
 // * `JOB_ID` can contain only letters ([A-Za-z]), numbers ([0-9]),
 //    hyphens (-), or underscores (_). The maximum length is 500 characters.
-func (cl *Client) CreateJob(callTime, callURL, schedulerLocation string, schedulerTimeZone string) error {
-	if callTime == "" {
-		return errors.New("No call time provided")
+func (cl *Client) CreateJob(args CreateJobArgs) error {
+	if args.CallTime == "" {
+		return fmt.Errorf("[Room %d] no call time provided", args.RoomNumber)
 	}
-	parts := strings.Split(callTime, ":")
+	parts := strings.Split(args.CallTime, ":")
 	if len(parts) != 2 {
-		return fmt.Errorf("Wake up time (%s) must be in the following format: hh:mm", callTime)
+		return fmt.Errorf("[Room %d] wake up time (%s) must be in the following format: hh:mm", args.RoomNumber, args.CallTime)
 	}
 	// Parse wake up time hour and min
 	callHour, err := strconv.Atoi(parts[0])
 	if err != nil {
-		return errors.Wrapf(err, "wake up hour (%s) in wake up time (%s) is not a number", parts[0], callTime)
+		return errors.Wrapf(err, "[Room %d] wake up hour (%s) in wake up time (%s) is not a number", args.RoomNumber, parts[0], args.CallTime)
 	}
 	callMin, err := strconv.Atoi(parts[1])
 	if err != nil {
-		return errors.Wrapf(err, "wake up min (%s) in wake up time (%s) is not a number", parts[1], callTime)
+		return errors.Wrapf(err, "[Room %d] wake up min (%s) in wake up time (%s) is not a number", args.RoomNumber, parts[1], args.CallTime)
 	}
-	if callURL == "" {
-		return errors.New("No call URL provided")
+	if args.CallURL == "" {
+		return fmt.Errorf("[Room %d] No call URL provided", args.RoomNumber)
 	}
 	// Prepare scheduler job name
-	jobID := schedulerLocation + "/jobs/wake_up_at_" + callTime
+	jobID := args.SchedulerLocation + "/jobs/call_at_" + args.CallTime
 	// Make sure scheduler job doesn't exist for provided wake up time
 	existingJob, err := cl.GetJob(jobID)
 	if err != nil {
@@ -68,22 +77,22 @@ func (cl *Client) CreateJob(callTime, callURL, schedulerLocation string, schedul
 	}
 	// Job already exists - do nothing
 	if existingJob != nil {
-		log.Printf("Scheduler job already exists for waker up time %s", callTime)
+		log.Printf("[Room %d] Scheduler job already exists for call time %s", args.RoomNumber, args.CallTime)
 		return nil
 	}
 	// Prepare schedule to call once a day at provided time
 	schedule := fmt.Sprintf("%d %d * * *", callMin, callHour)
 	req := &schedulerpb.CreateJobRequest{
-		Parent: schedulerLocation,
+		Parent: args.SchedulerLocation,
 		Job: &schedulerpb.Job{
 			Name: removeColon(jobID),
 			Target: &schedulerpb.Job_HttpTarget{
 				HttpTarget: &schedulerpb.HttpTarget{
-					Uri:        callURL,
+					Uri:        args.CallURL,
 					HttpMethod: schedulerpb.HttpMethod_GET,
 				},
 			},
-			TimeZone: schedulerTimeZone,
+			TimeZone: args.SchedulerTimezone,
 			Schedule: schedule,
 		},
 	}
@@ -95,7 +104,7 @@ func (cl *Client) CreateJob(callTime, callURL, schedulerLocation string, schedul
 	if resp.State != schedulerpb.Job_ENABLED {
 		return errors.Wrap(fmt.Errorf("Found incorrect job state %d in response. Must be %d", resp.State, schedulerpb.Job_ENABLED), "CreateJob->cl.CloudSchedulerClient.CreateJob")
 	}
-	log.Printf("Created scheduler job for wake up time %s", callTime)
+	log.Printf("[Room %d] Created scheduler job for wake up time %s", args.RoomNumber, args.CallTime)
 
 	return nil
 }

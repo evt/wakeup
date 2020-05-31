@@ -12,16 +12,18 @@ import (
 
 // Config is a config :)
 type Config struct {
-	PgURL             string `env:"WAKEUP_PG_URL"`
-	PgProto           string `env:"WAKEUP_PG_PROTO"`
-	PgAddr            string `env:"WAKEUP_PG_ADDR"`
-	PgDb              string `env:"WAKEUP_PG_DB"`
-	PgUser            string `env:"WAKEUP_PG_USER"`
-	PgPassword        string `env:"WAKEUP_PG_PASSWORD"`
-	CallRoomEndpoint  string `env:"WAKEUP_CALL_ROOM_ENDPOINT"`
-	SchedulerLocation string `env:"WAKEUP_SCHEDULER_LOCATION"`
-	SchedulerTimeZone string `env:"WAKEUP_SCHEDULER_TIMEZONE"`
-	CallEndpoint      string `env:"WAKEUP_CALL_ENDPOINT"`
+	PgURL                string `env:"WAKEUP_PG_URL"`
+	PgProto              string `env:"WAKEUP_PG_PROTO"`
+	PgAddr               string `env:"WAKEUP_PG_ADDR"`
+	PgDb                 string `env:"WAKEUP_PG_DB"`
+	PgUser               string `env:"WAKEUP_PG_USER"`
+	PgPassword           string `env:"WAKEUP_PG_PASSWORD"`
+	CallRoomEndpoint     string `env:"WAKEUP_CALL_ROOM_ENDPOINT"`
+	SchedulerLocation    string `env:"WAKEUP_SCHEDULER_LOCATION"`
+	SchedulerTimeZone    string `env:"WAKEUP_SCHEDULER_TIMEZONE"`
+	SchedulerRetryCount  int    `env:"WAKEUP_SCHEDULER_RETRY_COUNT"`
+	SchedulerRetryPeriod string `env:"WAKEUP_SCHEDULER_RETRY_PERIOD"`
+	CallEndpoint         string `env:"WAKEUP_CALL_ENDPOINT"`
 }
 
 var (
