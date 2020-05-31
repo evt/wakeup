@@ -9,6 +9,7 @@ import (
 
 	"github.com/evt/wakeup/config"
 	"github.com/evt/wakeup/db"
+	"github.com/evt/wakeup/db/migrations"
 	"github.com/evt/wakeup/scheduler"
 	"github.com/evt/wakeup/server"
 )
@@ -28,6 +29,11 @@ func run() error {
 	// connect to Postgres
 	pgDB, err := db.Dial(cfg)
 	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Run Postgres migrations
+	if err := migrations.Run(pgDB); err != nil {
 		log.Fatal(err)
 	}
 

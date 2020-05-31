@@ -1,4 +1,3 @@
-.env.cloud_ayu.yaml
 cmd/env_global.sh
 cmd/rundev_ayu.sh
 cmd/env_ayu.sh
