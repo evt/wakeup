@@ -153,3 +153,16 @@ macbook:cmd jt$ curl --location --request POST 'https://europe-west1-wakeup-2787
 7. Make sure rooms called:
 
 ![](images/calls.png)
+
+8. Make sure rooms rescheduled in case of call error (see WAKEUP_SCHEDULER_MAX_RETRY_COUNT and WAKEUP_SCHEDULER_RETRY_PERIOD in `cmd/env.sh`):
+
+![](images/retry.png)
+
+9. Have a nice day :)
+
+# TODO
+
+- Move to interfaces
+- Add unit tests with https://github.com/stretchr/testify
+- Improve deploy time
+- More QA as obviously some bugs missed :)

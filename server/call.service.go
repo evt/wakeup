@@ -61,13 +61,17 @@ func (s *Server) CallRoom(w http.ResponseWriter, r *http.Request) {
 				log.Printf("[Room %d] call passed (status - %d).", room.RoomNumber, status)
 			} else {
 				if needsCallRetry {
-					callTime, err := addRetryPeriod(room.CallTime, s.config.SchedulerRetryPeriod)
+					retryCallTime, err := addRetryPeriod(room.CallTime, s.config.SchedulerRetryPeriod)
 					if err != nil {
 						log.Printf("[Room %d] addRetryPeriod error: %s", room.RoomNumber, err)
 						return err
 					}
-					room.CallTime = callTime
+
+					log.Printf("[Room %d] room retry count - %d. Scheduling retry call at %s.", room.RoomNumber, room.RetryCount, retryCallTime)
+
+					room.CallTime = retryCallTime
 					s.scheduleJob([]*model.Room{room})
+
 					s.db.IncRoomRetryCount(room)
 				} else {
 					log.Printf("[Room %d] room retry count - %d. No more retries scheduled.", room.RoomNumber, room.RetryCount)
@@ -104,6 +108,9 @@ func call(endpoint string, room *model.Room) (int, error) {
 	if room == nil {
 		return 0, errors.New("No room provided")
 	}
+
+	log.Printf("[Room %d] calling 3rd party service API on %s", room.RoomNumber, endpoint)
+
 	resp, err := HTTPClient.Get(endpoint)
 	if err != nil {
 		return 0, errors.Wrap(err, "calll->HTTPClient.Get")
