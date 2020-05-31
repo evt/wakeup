@@ -1,6 +1,10 @@
 # WakeUp
 
-Hotel wake up service
+Hotel wake up service.
+
+Customer asks to wake them up at xx:yy and this what this service does.
+
+Technologies used: Google Cloud Scheduler, Cloud SQL, Cloud Functions.
 
 # Service Diagram
 
