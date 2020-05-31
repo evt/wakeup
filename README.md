@@ -4,7 +4,7 @@ Hotel wake up service
 
 # Service Diagram
 
-![](images/diagram.png)
+![](images/diagram.svg)
 # Deploy
 
 ```
