@@ -9,6 +9,7 @@ Technologies used: Google Cloud Scheduler, Cloud SQL, Cloud Functions.
 # Service Diagram
 
 ![](images/diagram.svg)
+
 # Deploy
 
 1. Setup Google Cloud Project and Cloud PostgreSQL.
@@ -105,3 +106,46 @@ timeout: 60s
 updateTime: '2020-05-31T09:03:04.348Z'
 versionId: '7'
 ```
+
+5. Simulate guest "wake me up" calls:
+
+```
+macbook:cmd jt$ curl --location --request POST 'https://europe-west1-wakeup-278716.cloudfunctions.net/ScheduleCall' \
+> --header 'Content-Type: application/json' \
+> --data-raw '[
+>     {
+>         "firstname": "Eugene",
+>         "lastname": "Toropov",
+>         "call_time": "20:15",
+>         "room_number": 1
+>     },
+>     {
+>         "firstname": "Olga",
+>         "lastname": "Toropova",
+>         "call_time": "20:16",
+>         "room_number": 2
+>     }
+> ]'
+[
+  {
+    "room_number": 1,
+    "firstname": "Eugene",
+    "lastname": "Toropov",
+    "call_time": "20:15",
+    "retry_count": 0,
+    "created": "2020-05-31T17:49:09.190929Z"
+  },
+  {
+    "room_number": 2,
+    "firstname": "Olga",
+    "lastname": "Toropova",
+    "call_time": "20:16",
+    "retry_count": 0,
+    "created": "2020-05-31T17:49:09.190929Z"
+  }
+]
+```
+
+6. Make sure cloud scheduler jobs scheduled:
+
+![](images/jobs.png)

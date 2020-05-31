@@ -23,6 +23,7 @@ func (s *Server) CallRoom(w http.ResponseWriter, r *http.Request) {
 		s.error(w, r, err, http.StatusInternalServerError)
 		return
 	}
+	log.Printf("Found %d rooms to call for a call time %s and SchedulerMaxRetryCount = %d", len(rooms), callTime, s.config.SchedulerMaxRetryCount)
 	// Make sure we have rooms to call
 	if len(rooms) == 0 {
 		s.respond(w, r, map[string]interface{}{
@@ -44,23 +45,33 @@ func (s *Server) CallRoom(w http.ResponseWriter, r *http.Request) {
 				return err
 			}
 			log.Printf("[Room %d] call status - %d", room.RoomNumber, status)
+			// Check if call passed
+			callPassed, err := s.callPassed(room, status)
+			if err != nil {
+				log.Printf("[Room %d] callPassed error: %s", room.RoomNumber, err)
+				return err
+			}
 			// Schedule call retry if needed
 			needsCallRetry, err := s.needsCallRetry(room, status)
 			if err != nil {
 				log.Printf("[Room %d] needsCallRetry error: %s", room.RoomNumber, err)
 				return err
 			}
-			if needsCallRetry {
-				callTime, err := addRetryPeriod(room.CallTime, s.config.SchedulerRetryPeriod)
-				if err != nil {
-					log.Printf("[Room %d] addRetryPeriod error: %s", room.RoomNumber, err)
-					return err
-				}
-				room.CallTime = callTime
-				s.scheduleJob([]*model.Room{room})
-				s.db.IncRoomRetryCount(room)
+			if callPassed {
+				log.Printf("[Room %d] call passed (status - %d).", room.RoomNumber, status)
 			} else {
-				log.Printf("[Room %d] retry count - %d. No more retries scheduled.", room.RoomNumber, room.RetryCount)
+				if needsCallRetry {
+					callTime, err := addRetryPeriod(room.CallTime, s.config.SchedulerRetryPeriod)
+					if err != nil {
+						log.Printf("[Room %d] addRetryPeriod error: %s", room.RoomNumber, err)
+						return err
+					}
+					room.CallTime = callTime
+					s.scheduleJob([]*model.Room{room})
+					s.db.IncRoomRetryCount(room)
+				} else {
+					log.Printf("[Room %d] room retry count - %d. No more retries scheduled.", room.RoomNumber, room.RetryCount)
+				}
 			}
 			// Save call in DB
 			call := &model.Call{
@@ -110,6 +121,17 @@ func (s *Server) needsCallRetry(room *model.Room, status int) (bool, error) {
 		return false, nil
 	}
 	if status >= 400 && status < 600 {
+		return true, nil
+	}
+	return false, nil
+}
+
+// callPassed returns true if status is 200
+func (s *Server) callPassed(room *model.Room, status int) (bool, error) {
+	if room == nil {
+		return false, errors.New("No room provided")
+	}
+	if status == 200 {
 		return true, nil
 	}
 	return false, nil
