@@ -146,6 +146,10 @@ macbook:cmd jt$ curl --location --request POST 'https://europe-west1-wakeup-2787
 ]
 ```
 
-6. Make sure cloud scheduler jobs scheduled:
+6. Make sure jobs scheduled:
 
 ![](images/jobs.png)
+
+7. Make sure rooms called:
+
+![](images/calls.png)
