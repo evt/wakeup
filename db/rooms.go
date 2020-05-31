@@ -14,9 +14,12 @@ func (db *PgDB) AddRooms(rooms []*model.Room) error {
 }
 
 // FindRooms returns room list by call time
-func (db *PgDB) FindRooms(callTime string) ([]*model.Room, error) {
+func (db *PgDB) FindRooms(callTime string, maxRetryCount int) ([]*model.Room, error) {
 	var rooms []*model.Room
-	err := db.Model(&rooms).Where("call_time = ?", callTime).Select()
+	err := db.Model(&rooms).
+		Where("call_time = ?", callTime).
+		Where("retry_count < ?", maxRetryCount).
+		Select()
 	if err != nil {
 		if err == pg.ErrNoRows {
 			return nil, nil

@@ -18,7 +18,7 @@ func (s *Server) CallRoom(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Find rooms by wake up time
-	rooms, err := s.db.FindRooms(callTime)
+	rooms, err := s.db.FindRooms(callTime, s.config.SchedulerMaxRetryCount)
 	if err != nil {
 		s.error(w, r, err, http.StatusInternalServerError)
 		return
@@ -32,6 +32,8 @@ func (s *Server) CallRoom(w http.ResponseWriter, r *http.Request) {
 	}
 	// Call rooms
 	var g errgroup.Group
+	// Collect calls
+	calls := make([]*model.Call, 0, len(rooms))
 	for _, room := range rooms {
 		room := room // https://golang.org/doc/faq#closures_and_goroutines
 		g.Go(func() error {
@@ -61,14 +63,16 @@ func (s *Server) CallRoom(w http.ResponseWriter, r *http.Request) {
 				log.Printf("[Room %d] retry count - %d. No more retries scheduled.", room.RoomNumber, room.RetryCount)
 			}
 			// Save call in DB
-			err = s.db.SaveCall(&model.Call{
+			call := &model.Call{
 				RoomNumber: room.RoomNumber,
 				CallStatus: status,
-			})
+			}
+			err = s.db.SaveCall(call)
 			if err != nil {
 				log.Printf("[Room %d] save call error: %s", room.RoomNumber, err)
 				return err
 			}
+			calls = append(calls, call)
 			return nil
 		})
 	}
@@ -76,7 +80,7 @@ func (s *Server) CallRoom(w http.ResponseWriter, r *http.Request) {
 		s.error(w, r, err, http.StatusInternalServerError)
 		return
 	}
-	s.respond(w, r, rooms, http.StatusOK)
+	s.respond(w, r, calls, http.StatusOK)
 }
 
 // call makes a REST call to external call service.
@@ -102,7 +106,7 @@ func (s *Server) needsCallRetry(room *model.Room, status int) (bool, error) {
 	if room == nil {
 		return false, errors.New("No room provided")
 	}
-	if room.RetryCount >= s.config.SchedulerRetryCount {
+	if room.RetryCount >= s.config.SchedulerMaxRetryCount {
 		return false, nil
 	}
 	if status >= 400 && status < 600 {

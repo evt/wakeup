@@ -21,7 +21,7 @@ type Config struct {
 	CallRoomEndpoint     string `env:"WAKEUP_CALL_ROOM_ENDPOINT"`
 	SchedulerLocation    string `env:"WAKEUP_SCHEDULER_LOCATION"`
 	SchedulerTimeZone    string `env:"WAKEUP_SCHEDULER_TIMEZONE"`
-	SchedulerRetryCount  int    `env:"WAKEUP_SCHEDULER_RETRY_COUNT"`
+	SchedulerMaxRetryCount  int    `env:"WAKEUP_SCHEDULER_MAX_RETRY_COUNT"`
 	SchedulerRetryPeriod string `env:"WAKEUP_SCHEDULER_RETRY_PERIOD"`
 	CallEndpoint         string `env:"WAKEUP_CALL_ENDPOINT"`
 }
