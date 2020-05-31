@@ -17,6 +17,7 @@ require (
 	github.com/lib/pq v1.5.2
 	github.com/pkg/errors v0.9.1
 	golang.org/x/net v0.0.0-20200520182314-0ba52f642ac2 // indirect
+	golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a
 	golang.org/x/sys v0.0.0-20200523222454-059865788121 // indirect
 	google.golang.org/api v0.25.0 // indirect
 	google.golang.org/genproto v0.0.0-20200528110217-3d3490e7e671

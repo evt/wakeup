@@ -2,13 +2,11 @@ package server
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/pkg/errors"
 
 	"github.com/evt/wakeup/model"
-	"github.com/google/uuid"
 )
 
 // ScheduleCall accepts a list of rooms to call at certain time, saves them in Postgres and creates scheduler job if not exists yet
@@ -44,14 +42,6 @@ func (s *Server) ScheduleCall(w http.ResponseWriter, r *http.Request) {
 			s.error(w, r, fmt.Errorf("Call time (%s) has incorrect format (must be xx:yy) for room number %d", room.CallTime, room.RoomNumber), http.StatusBadRequest)
 			return
 		}
-		// Generate unique room ID
-		roomUUID, err := uuid.NewRandom()
-		if err != nil {
-			log.Printf("uuid.NewRandom error: %s", err)
-			s.error(w, r, fmt.Errorf("Can't generate UUID for room %s %s", room.Firstname, room.Lastname), http.StatusBadRequest)
-			return
-		}
-		room.RoomID = roomUUID.String()
 		// Create scheduler job
 		callRoomURL := s.config.CallRoomEndpoint + "?call_time=" + room.CallTime
 		if err := s.scheduler.CreateJob(room.CallTime, callRoomURL, s.config.SchedulerLocation, s.config.SchedulerTimeZone); err != nil {

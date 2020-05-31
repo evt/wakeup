@@ -21,6 +21,7 @@ type Config struct {
 	CallRoomEndpoint  string `env:"WAKEUP_CALL_ROOM_ENDPOINT"`
 	SchedulerLocation string `env:"WAKEUP_SCHEDULER_LOCATION"`
 	SchedulerTimeZone string `env:"WAKEUP_SCHEDULER_TIMEZONE"`
+	CallEndpoint      string `env:"WAKEUP_CALL_ENDPOINT"`
 }
 
 var (

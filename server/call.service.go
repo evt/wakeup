@@ -1,12 +1,12 @@
 package server
 
 import (
-	"errors"
 	"log"
 	"net/http"
-	"sync"
 
-	"github.com/davecgh/go-spew/spew"
+	"github.com/pkg/errors"
+	"golang.org/x/sync/errgroup"
+
 	"github.com/evt/wakeup/model"
 )
 
@@ -23,7 +23,6 @@ func (s *Server) CallRoom(w http.ResponseWriter, r *http.Request) {
 		s.error(w, r, err, http.StatusInternalServerError)
 		return
 	}
-	log.Printf("Rooms to wake up by time %s:\n%s", callTime, spew.Sdump(rooms))
 	// Make sure we have rooms to call
 	if len(rooms) == 0 {
 		s.respond(w, r, map[string]interface{}{
@@ -32,15 +31,50 @@ func (s *Server) CallRoom(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Call rooms
-	var wg sync.WaitGroup
+	var g errgroup.Group
 	for _, room := range rooms {
-		wg.Add(1)
-		go func(room *model.Room) {
-			defer wg.Done()
-			log.Printf("Calling room %s %s staying in room number %d", room.Firstname, room.Lastname, room.RoomNumber)
-		}(room)
+		room := room // https://golang.org/doc/faq#closures_and_goroutines
+		g.Go(func() error {
+			log.Printf("[Room %d] calling guest - %s %s", room.RoomNumber, room.Firstname, room.Lastname)
+			status, err := call(s.config.CallEndpoint, room)
+			if err != nil {
+				log.Printf("[Room %d] call error: %s, call status - %d", room.RoomNumber, err, status)
+				return err
+			}
+			log.Printf("[Room %d] call status - %d", room.RoomNumber, status)
+			// Save call in DB
+			err = s.db.SaveCall(&model.Call{
+				RoomNumber: room.RoomNumber,
+				CallStatus: status,
+			})
+			if err != nil {
+				log.Printf("[Room %d] save call error: %s", room.RoomNumber, err)
+				return err
+			}
+			return nil
+		})
 	}
-	wg.Wait()
-
+	if err := g.Wait(); err != nil {
+		s.error(w, r, err, http.StatusInternalServerError)
+		return
+	}
 	s.respond(w, r, rooms, http.StatusOK)
+}
+
+// call makes a REST call to external call service.
+// Success status: 200
+// Error status: non-200
+func call(endpoint string, room *model.Room) (int, error) {
+	if endpoint == "" {
+		return 0, errors.New("No call endpoint found in config")
+	}
+	if room == nil {
+		return 0, errors.New("No room provided")
+	}
+	resp, err := HTTPClient.Get(endpoint)
+	if err != nil {
+		return 0, errors.Wrap(err, "calll->HTTPClient.Get")
+	}
+	defer resp.Body.Close()
+	return resp.StatusCode, nil
 }
