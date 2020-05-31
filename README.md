@@ -4,7 +4,7 @@ Hotel wake up service.
 
 Customer asks to wake them up at xx:yy and this what this service does.
 
-Technologies used: Google Cloud Scheduler, Closue SQL. Cloud Functions.
+Technologies used: Google Cloud Scheduler, Cloud SQL, Cloud Functions.
 
 # Service Diagram
 
