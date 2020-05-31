@@ -11,6 +11,39 @@ Technologies used: Google Cloud Scheduler, Cloud SQL, Cloud Functions.
 ![](images/diagram.svg)
 # Deploy
 
+1. Setup Google Cloud Project and Cloud PostgreSQL.
+2. Put your gcloud serviceaccount.json file into `cmd` directory.
+3. Update environment variables in `cmd/env.sh` file:
+
+```
+export GOOGLE_APPLICATION_CREDENTIALS=./serviceaccount.json
+
+# Local postgres
+# export WAKEUP_PG_PROTO=tcp
+# export WAKEUP_PG_ADDR=localhost:5432
+# export WAKEUP_PG_DB=wakeup
+# export WAKEUP_PG_USER=postgres
+# export WAKEUP_PG_PASSWORD=postgres
+
+# Google Cloud Postgres
+export WAKEUP_PG_PROTO=unix
+export WAKEUP_PG_ADDR=/cloudsql/wakeup-278716:europe-west1:wakeup-postgres/.s.PGSQL.5432
+export WAKEUP_PG_DB=wakeup
+export WAKEUP_PG_USER=wakeup
+export WAKEUP_PG_PASSWORD=wakeup
+
+export WAKEUP_GC_PROJECT=wakeup-278716
+export WAKEUP_GC_PROJECT_LOCATION=europe-west1
+export WAKEUP_CALL_ROOM_ENDPOINT=https://$WAKEUP_GC_PROJECT_LOCATION-$WAKEUP_GC_PROJECT.cloudfunctions.net/CallRoom
+export WAKEUP_SCHEDULER_LOCATION=projects/$WAKEUP_GC_PROJECT/locations/$WAKEUP_GC_PROJECT_LOCATION
+export WAKEUP_SCHEDULER_TIMEZONE=Europe/Moscow
+export WAKEUP_SCHEDULER_MAX_RETRY_COUNT=2
+export WAKEUP_SCHEDULER_RETRY_PERIOD=1m
+export WAKEUP_CALL_ENDPOINT=https://www.google.com
+```
+
+4. Deploy Google cloud functions with `cmd/deploy.all.sh` script as follows:
+
 ```
 macbook:cmd jt$ ./deploy.all.sh
 Deploying function (may take a while - up to 2 minutes)...done.
