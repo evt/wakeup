@@ -1,6 +1,6 @@
 # WakeUp
 
-Hotel wake up service.
+Hotel wake up service. Serverless.
 
 Customer asks to wake them up at xx:yy and this what this service does.
 
