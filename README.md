@@ -150,7 +150,7 @@ macbook:cmd jt$ curl --location --request POST 'https://europe-west1-wakeup-2787
 
 ![](images/jobs.png)
 
-7. Make sure rooms called:
+7. Make sure rooms called at xx:yy:
 
 ![](images/calls.png)
 
