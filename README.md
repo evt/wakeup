@@ -166,3 +166,4 @@ macbook:cmd jt$ curl --location --request POST 'https://europe-west1-wakeup-2787
 - Add unit tests with https://github.com/stretchr/testify
 - Improve deploy time
 - More QA as obviously some bugs missed :)
+- Full-featured admin panel to view and manage guests/rooms to call, passed/future calls, call statuses, etc.
