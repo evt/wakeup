@@ -8,7 +8,7 @@ Technologies used: Google Cloud Scheduler, Cloud SQL, Cloud Functions.
 
 # Service Diagram
 
-![](images/diagram.jpg)
+![](images/diagram_new.svg)
 
 # Deploy
 
