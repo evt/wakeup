@@ -13,7 +13,7 @@ Technologies used: Google Cloud Scheduler, Cloud SQL, Cloud Functions.
 # Deploy
 
 1. Setup Google Cloud Project and Cloud PostgreSQL.
-2. Put your gcloud serviceaccount.json file into `cmd` directory.
+2. Put your gcloud serviceaccount.json (with editor permissions for Cloud Scheduler and Cloud SQL) file into `cmd` directory.
 3. Update environment variables in `cmd/env.sh` file:
 
 ```
